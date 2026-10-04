@@ -34,6 +34,7 @@ import { LevelsHomePage } from './components/LevelsHomePage';
 import { PlatformNavigationDrawer } from './components/PlatformNavigationDrawer';
 import { AIAssistantDrawer } from './components/AIAssistantDrawer';
 import { CorrectionMemoDrawer } from './components/CorrectionMemoDrawer';
+import { SourceMemo1AMViewer } from './components/SourceMemo1AMViewer';
 import { PedagogicalNoteModal } from './components/PedagogicalNoteModal';
 import { PlatformInfoModal } from './components/PlatformInfoModal';
 import { InteractiveMaqta1 } from './components/InteractiveMaqta1';
@@ -51,7 +52,7 @@ export const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<MainSectionType>('home');
 
   // Sub-view inside the active year: 'memos' (المذكرات البيداغوجية) | 'distribution' (تدرج التعلمات)
-  const [yearSubTab, setYearSubTab] = useState<'memos' | 'distribution'>('memos');
+  const [yearSubTab, setYearSubTab] = useState<'memos' | 'distribution' | 'source'>('memos');
 
   // Drawers and Modals
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
@@ -511,6 +512,20 @@ export const App: React.FC = () => {
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>المذكرات البيداغوجية</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        id="year-subtab-source"
+                        onClick={() => setYearSubTab('source')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[12px] font-black transition cursor-pointer ${
+                          yearSubTab === 'source'
+                            ? midanTheme.activeTabBg
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-white/80'
+                        }`}
+                      >
+                        <Database className="w-3.5 h-3.5" />
+                        <span>المصدر الكامل</span>
                       </button>
 
                       <button
