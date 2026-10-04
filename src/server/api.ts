@@ -497,6 +497,9 @@ apiApp.post('/api/gemini/generate-pedagogical-note', async (req, res) => {
           officialSources: Array.isArray((sourceContext as any).officialSources)
             ? (sourceContext as any).officialSources.slice(0, 20)
             : [],
+          sourceMemoExcerpts: typeof (sourceContext as any).sourceMemoExcerpts === 'string'
+            ? String((sourceContext as any).sourceMemoExcerpts).slice(0, 24000)
+            : '',
           sourcePolicy: (sourceContext as any).sourcePolicy || null,
         }
       : {};
@@ -513,6 +516,8 @@ apiApp.post('/api/gemini/generate-pedagogical-note', async (req, res) => {
 8) الذكاء الاصطناعي للاقتراحات غير المثبتة.
 
 لا تنسب أي معلومة إلى المنهاج أو الوثيقة المرافقة أو دليل الأستاذ إلا إذا كانت موجودة فعلاً في السياق أو في مرفق مصنف بذلك المصدر.
+إذا لم يكن محتوى الوثيقة المرافقة/دليل الأستاذ مرفقاً أو متاحاً في السياق، سجّل المصدر كـ«غير متاح» ولا تدّعِ أنك استعملته.
+مقتطفات المصدر الكامل للمذكرات تُستخدم للتحقق من عناوين الأنشطة والتقويم وبنية الحصة، ولا تُستخدم لتغيير الميدان/المقطع/المورد الرسمي المثبت في المنهاج والتدرج.
 لا تجعل الويب أو النموذج اللغوي يتغلب على مصدر رسمي متاح.
 عند استعمال قيمة من سياق المصدر، سجلها في sourceTrace مع نوع المصدر واسمه.
 إذا تعذر إثبات قيمة من المصادر الداخلية، لا تخترعها؛ يمكن اقتراحها فقط كـ sourceType="ai" وsourceLabel="اقتراح AI — يحتاج مراجعة الأستاذ".
