@@ -819,6 +819,18 @@ export const App: React.FC = () => {
         </div>
       )}
 
+      {isYearSection && yearSubTab === 'source' && (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {selectedLevel === '1am' ? (
+            <SourceMemo1AMViewer lessons={curriculumLessons} />
+          ) : (
+            <div dir="rtl" className="h-full flex items-center justify-center p-6 bg-slate-50 text-slate-600 font-bold">
+              عارض المصدر الكامل متاح حاليًا داخل قسم السنة الأولى متوسط.
+            </div>
+          )}
+        </div>
+      )}
+
       {isYearSection && yearSubTab === 'distribution' && (
         <div
           className="flex-1 flex flex-col relative overflow-hidden"
