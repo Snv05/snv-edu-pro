@@ -10,6 +10,20 @@ export const SourceMemo1AMViewer: React.FC<Props> = ({ lessons }) => {
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
   const [showRawSource, setShowRawSource] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<number | null>(null);
+
+  const sourcePages = useMemo(() => {
+    const chunks = sourceText.split(/(?=<PARSED TEXT FOR PAGE: \d+ \/ 98>)/g).filter(Boolean);
+    return chunks.map((text, index) => ({
+      page: Number(text.match(/<PARSED TEXT FOR PAGE: (\d+)/)?.[1] || index + 1),
+      text,
+    }));
+  }, []);
+
+  const visibleSourceText = useMemo(() => {
+    if (selectedPage == null) return sourceText;
+    return sourcePages.find(p => p.page === selectedPage)?.text || sourceText;
+  }, [selectedPage, sourcePages]);
 
   const records = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -63,16 +77,22 @@ export const SourceMemo1AMViewer: React.FC<Props> = ({ lessons }) => {
             <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="ابحث في قاعدة 1AM والنص الأصلي والجداول والأنشطة..." className="w-full pr-9 pl-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-emerald-200" />
           </div>
-          <button type="button" onClick={() => setShowRawSource(v => !v)} className="mt-3 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-black">
-            {showRawSource ? 'إخفاء النص الأصلي' : 'عرض النص الأصلي المستخرج'}
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => setShowRawSource(v => !v)} className="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-black">
+              {showRawSource ? 'إخفاء النص الأصلي' : 'عرض النص الأصلي المستخرج'}
+            </button>
+            <select value={selectedPage ?? ''} onChange={e => setSelectedPage(e.target.value ? Number(e.target.value) : null)} className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold">
+              <option value="">كل الصفحات (98)</option>
+              {sourcePages.map(p => <option key={p.page} value={p.page}>الصفحة {p.page}</option>)}
+            </select>
+          </div>
         </div>
 
         {showRawSource && (
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-4">
             <div className="font-black text-slate-900 mb-2">النص الأصلي المستخرج من الملف</div>
             <div className="max-h-[65vh] overflow-auto rounded-xl bg-slate-950 text-slate-100 p-4 text-xs leading-6 whitespace-pre-wrap font-mono" dir="rtl">
-              {query && rawMatches.length ? rawMatches.join('\n\n────────────────────────\n\n') : sourceText}
+              {query && rawMatches.length ? rawMatches.join('\n\n────────────────────────\n\n') : visibleSourceText}
             </div>
           </div>
         )}
