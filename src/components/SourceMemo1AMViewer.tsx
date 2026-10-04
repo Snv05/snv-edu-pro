@@ -2,12 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Table2, Image as ImageIcon } from 'lucide-react';
 import { LessonMemo } from '../types';
 import { SOURCE_MEMO_1AM } from '../data/sourceMemo1am';
+import sourceText from '../data/sourceMemo1amFullText.md?raw';
 
 interface Props { lessons: LessonMemo[]; }
 
 export const SourceMemo1AMViewer: React.FC<Props> = ({ lessons }) => {
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [showRawSource, setShowRawSource] = useState(false);
 
   const records = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -19,6 +21,12 @@ export const SourceMemo1AMViewer: React.FC<Props> = ({ lessons }) => {
       l.irsae, l.taqwim, ...l.anshita.flatMap(a => [a.title, a.asila, a.ajwiba])
     ].join('\n').toLowerCase().includes(q));
   }, [lessons, query]);
+
+  const rawMatches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return sourceText.split(/\n{2,}/).filter(p => p.toLowerCase().includes(q)).slice(0, 80);
+  }, [query]);
 
   const stats = useMemo(() => {
     const activities = records.flatMap(l => l.anshita);
@@ -53,9 +61,21 @@ export const SourceMemo1AMViewer: React.FC<Props> = ({ lessons }) => {
           </div>
           <div className="relative mt-4">
             <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="ابحث داخل الميدان، المقطع، المورد، تعلم المورد، الأنشطة، التقويم..." className="w-full pr-9 pl-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-emerald-200" />
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="ابحث في قاعدة 1AM والنص الأصلي والجداول والأنشطة..." className="w-full pr-9 pl-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-emerald-200" />
           </div>
+          <button type="button" onClick={() => setShowRawSource(v => !v)} className="mt-3 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-black">
+            {showRawSource ? 'إخفاء النص الأصلي' : 'عرض النص الأصلي المستخرج'}
+          </button>
         </div>
+
+        {showRawSource && (
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-4">
+            <div className="font-black text-slate-900 mb-2">النص الأصلي المستخرج من الملف</div>
+            <div className="max-h-[65vh] overflow-auto rounded-xl bg-slate-950 text-slate-100 p-4 text-xs leading-6 whitespace-pre-wrap font-mono" dir="rtl">
+              {query && rawMatches.length ? rawMatches.join('\n\n────────────────────────\n\n') : sourceText}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3">
           {records.map((lesson, index) => {
