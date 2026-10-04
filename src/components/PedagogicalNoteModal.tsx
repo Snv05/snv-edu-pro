@@ -39,6 +39,7 @@ import { ExpertLabBlock, consumePendingExpertLabBlock, subscribeExpertLab } from
 import { OFFICIAL_1AM_DISTRIBUTION, OFFICIAL_2AM_DISTRIBUTION, OFFICIAL_3AM_DISTRIBUTION, OFFICIAL_4AM_DISTRIBUTION } from '../data/officialAnnualDistributionData';
 import { loadCurriculumDatabase } from '../data/curriculumDb';
 import { buildOfficialSourceContext } from '../services/officialPedagogicalSources';
+import sourceMemo1AMFullText from '../data/sourceMemo1amFullText.md?raw';
 import {
   MemoAttachment,
   fileToMemoAttachment,
@@ -103,7 +104,12 @@ export const PedagogicalNoteModal: React.FC<Props> = ({
     if (pending) setLabBlock(pending);
     const unsubscribe = subscribeExpertLab(block => { if (block) setLabBlock(block); });
     Promise.all([listMemoAttachments(), listMemoSourceDocuments()])
-      .then(([attachments, sources]) => { setSavedAttachments(attachments); setSourceLibrary(sources); })
+      .then(([attachments, sources]) => {
+        setSavedAttachments(attachments);
+        setSourceLibrary(sources);
+        const preferred = sources.filter((item) => /منهاج|منهج|curriculum|programme|مرافق|مرافقة|companion|accompagn/i.test(String(item.name || ''))).slice(0, 2);
+        if (preferred.length) setSelectedSourceIds(preferred.map(item => item.id));
+      })
       .catch((error) => console.error('[memo-attachments]', error));
     return unsubscribe;
   }, [isOpen]);
@@ -228,6 +234,13 @@ export const PedagogicalNoteModal: React.FC<Props> = ({
         useWebResearch,
         selectedModel?.sections || [],
         {
+          sourceMemoExcerpts: selectedGrade === '1AM' ? (() => {
+            const queryParts = [topic.trim(), ...progression.slice(0, 4).flatMap((row: any) => [row.mawrid, row.maqta, row.ta3alom].filter(Boolean))]
+              .map(norm).filter(Boolean);
+            const paragraphs = sourceMemo1AMFullText.split(/\\n\\s*\\n/).filter(Boolean);
+            const matches = paragraphs.filter((p) => queryParts.some((q) => norm(p).includes(q)));
+            return matches.slice(0, 12).join('\\n\\n--- مقتطف مصدر ---\\n\\n').slice(0, 24000);
+          })() : '',
           progression,
           memo,
           library: selectedModel ? [{
