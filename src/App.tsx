@@ -468,9 +468,12 @@ export const App: React.FC = () => {
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                  <h1 className="font-black text-[15px] text-gray-900 leading-tight">
-                    المنصة البيداغوجية الوطنية لأساتذة علوم الطبيعة والحياة
-                  </h1>
+                  <div>
+                    <h1 className="font-black text-[15px] text-gray-900 leading-tight">
+                      منصة علوم الطبيعة والحياة
+                    </h1>
+                    <p className="text-[10.5px] font-semibold text-emerald-700">التعليم المتوسط • الجزائر</p>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -672,6 +675,7 @@ export const App: React.FC = () => {
           onOpenLogbook={() => setActiveSection('logbook')}
           onOpenSettings={() => setActiveSection('settings')}
           onOpenAssistant={() => setIsAssistantOpen(true)}
+          onOpenCorrectionMemo={() => setIsCorrectionMemoOpen(true)}
           onOpenInfoModal={(tab) => setInfoModalTab(tab)}
           config={config}
           curriculumBackground={curriculumBackground}
